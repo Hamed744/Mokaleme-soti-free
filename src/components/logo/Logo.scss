@@ -1,0 +1,22 @@
+// src/components/logo/Logo.scss
+
+@keyframes user-pulse-animation {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.user-speaking {
+  .human-part {
+    animation: user-pulse-animation 1.5s infinite ease-in-out;
+    transform-origin: center; 
+  }
+}
+
+.ai-speaking-ripple {
+  transform: scale(var(--ai-voice-scale, 1));
+  transition: transform 0.15s ease-out;
+}

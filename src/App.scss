@@ -1,0 +1,294 @@
+// src/App.scss (نسخه کامل و نهایی - شامل حالت شب، دکمه‌های تیره و چیدمان اصلاح شده)
+
+// 1. Import Tailwind
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+// 2. CSS Variables
+:root {
+    --radius: 0.625rem; --radius-md: 0.5rem;
+    --background: #ffffff; --foreground: #1a1a1a;
+    --popover: #ffffff; --popover-foreground: #1a1a1a;
+    --border: #e5e7eb;
+    --notification-bg: #eff6ff;
+    --notification-text: #1e3a8a;
+}
+
+// 3. Dark Mode Variables (Soft & Deep Dark)
+.dark {
+    --background: #09090b; /* رنگ پس‌زمینه سافت دارک */
+    --foreground: #ededed;
+    --popover: #18181b; 
+    --popover-foreground: #ededed;
+    --border: #27272a;
+    --notification-bg: #1f2937;
+    --notification-text: #e5e7eb;
+}
+
+@layer base {
+    * { border-color: var(--border); box-sizing: border-box; }
+    body {
+        background-color: var(--background);
+        color: var(--foreground);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        margin: 0; padding: 0;
+        transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s ease;
+    }
+}
+
+/* --- استایل‌های عمومی --- */
+.loading-screen {
+  display: flex; align-items: center; justify-content: center;
+  height: 100vh; font-size: 1.2rem;
+  color: var(--foreground);
+}
+
+.main-wrapper {
+  min-height: 100vh; display: flex; flex-direction: column; position: relative;
+}
+
+.header-controls {
+    display: flex; padding: 0.75rem 1rem; justify-content: space-between; align-items: center;
+    width: 100%; position: absolute; top: 0; left: 0; z-index: 50;
+    pointer-events: none;
+    > div, > button { pointer-events: auto; }
+}
+
+.header-icon-button {
+    display: flex; align-items: center; justify-content: center; padding: 0.5rem;
+    width: 44px; height: 44px; border-radius: 9999px;
+    background-color: transparent; border: none; backdrop-filter: none;
+    cursor: pointer; transition: all 0.2s ease-out;
+    .material-symbols-outlined { opacity: 0.8; color: #374151; font-size: 28px; }
+    .dark & .material-symbols-outlined { color: #d4d4d8; }
+    &:hover { background-color: rgba(0, 0, 0, 0.05); }
+    .dark &:hover { background-color: rgba(255, 255, 255, 0.1); }
+    &:active { transform: scale(0.95); }
+}
+
+/* استایل نوتیفیکیشن */
+.notification-popover-wrapper {
+    position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); z-index: 100;
+    width: calc(100% - 2rem); max-width: 28rem; display: flex; justify-content: center; pointer-events: none;
+}
+#notification-popover.popover-content {
+    width: 100%; border-radius: 16px; border-width: 1px;
+    background-color: var(--popover); color: var(--popover-foreground);
+    border-color: var(--border); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    outline: none; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0; transform: translateY(-120%) scale(0.95); pointer-events: none;
+    &.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+}
+.notification-popover-text-content {
+    background-color: var(--notification-bg); 
+    font-size: 0.9rem; line-height: 1.6rem; direction: rtl;
+    padding: 1.25rem; border-radius: 12px; 
+    color: var(--notification-text);
+    transition: background-color 0.4s ease;
+}
+
+/* --- دکمه حالت تیره (Premium Toggle) --- */
+.theme-toggle-container { display: flex; justify-content: center; width: 100%; }
+.premium-theme-toggle {
+    position: relative; width: 100%; height: 56px; border-radius: 999px; border: none; cursor: pointer; overflow: hidden; padding: 0;
+    background: transparent; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.2s ease, box-shadow 0.3s ease;
+    &:hover { transform: scale(1.02); box-shadow: 0 8px 16px rgba(0,0,0,0.15); }
+    &:active { transform: scale(0.98); }
+    
+    .toggle-background {
+        position: absolute; top: 0; left: 0; width: 200%; height: 100%;
+        background: linear-gradient(90deg, #60a5fa 0%, #3b82f6 30%, #4338ca 70%, #1e1b4b 100%);
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(0);
+    }
+    &.dark-active .toggle-background { transform: translateX(-50%); }
+
+    .toggle-content { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; width: 100%; height: 100%; padding: 0 8px; direction: ltr; }
+    .icon-wrapper {
+        width: 44px; height: 44px; background: rgba(255, 255, 255, 0.9); border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s;
+        transform: translateX(0); position: relative; overflow: hidden;
+        span { position: absolute; font-size: 24px; transition: opacity 0.4s ease, transform 0.4s ease; }
+        .sun-icon { color: #f59e0b; opacity: 1; transform: scale(1); }
+        .moon-icon { color: #6366f1; opacity: 0; transform: rotate(-90deg) scale(0.5); }
+    }
+    .toggle-label { flex-grow: 1; text-align: center; color: white; font-weight: 700; font-size: 1rem; text-shadow: 0 1px 2px rgba(0,0,0,0.2); padding-right: 44px; }
+    &.dark-active {
+        .icon-wrapper {
+            margin-left: auto; transform: none; background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.3); color: #fff;
+            .sun-icon { opacity: 0; transform: rotate(90deg) scale(0.5); }
+            .moon-icon { opacity: 1; transform: rotate(0) scale(1); color: #fbbf24; }
+        }
+        .toggle-label { padding-right: 0; padding-left: 44px; }
+        .stars {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: radial-gradient(1px 1px at 10% 10%, white 100%, transparent), radial-gradient(1px 1px at 20% 40%, white 100%, transparent), radial-gradient(2px 2px at 40% 70%, white 100%, transparent), radial-gradient(1px 1px at 60% 20%, white 100%, transparent);
+            animation: twinkle 3s infinite alternate; opacity: 0.8; pointer-events: none;
+        }
+    }
+}
+@keyframes twinkle { 0% { opacity: 0.5; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1.05); } }
+
+/* انیمیشن پاپ‌آپ */
+.animate-popover-open-top-center { animation: popover-drop-in 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; }
+.animate-popover-close-top-center { animation: popover-lift-out 0.3s ease-in forwards; }
+@keyframes popover-drop-in { from { opacity: 0; transform: translateY(-100%) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes popover-lift-out { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-100%) scale(0.9); } }
+
+/* منوی شخصیت */
+.personality-popover-wrapper {
+  position: absolute; z-index: 100; top: calc(1rem + 44px + 8px); left: 1rem;
+  opacity: 0; pointer-events: none;
+  transform: translateY(-10px) scale(0.95); transition: all 150ms ease-in-out;
+  &.open { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+  .popover-content {
+    background: var(--popover); backdrop-filter: blur(10px);
+    border-radius: 12px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    border: 1px solid var(--border);
+    direction: rtl; max-height: 70vh; overflow-y: auto; width: 280px;
+    ul { list-style: none; padding: 0; margin: 0; }
+    li {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: background-color 150ms ease;
+      color: var(--foreground);
+      &:hover { background-color: rgba(0, 0, 0, 0.05); }
+      .dark &:hover { background-color: rgba(255, 255, 255, 0.1); }
+      &.active { color: #0a84ff; font-weight: 500; }
+      .dark &.active { color: #60a5fa; }
+      div { display: flex; align-items: center; gap: 12px; }
+      .material-symbols-outlined { font-size: 22px; &.tick { color: #34c759; } }
+    }
+  }
+}
+
+/* کارت‌های انتخاب گوینده */
+.selected-voice-display {
+  padding: 16px; text-align: center; border-bottom: 1px solid var(--border); margin: -8px -8px 8px -8px;
+  .voice-image-wrapper {
+    width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 12px;
+    position: relative; box-shadow: 0 0 0 4px transparent; transition: box-shadow 0.3s ease;
+    &.speaking { animation: pulse-glow 1.5s infinite ease-in-out; }
+  }
+  img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+  h3 { font-size: 1.1rem; font-weight: 700; margin: 0 0 4px 0; color: var(--foreground); }
+  p { font-size: 0.8rem; color: var(--foreground); opacity: 0.7; margin: 0; }
+}
+
+.menu-divider { border: none; height: 1px; background-color: var(--border); margin: 8px 4px; }
+.menu-subtitle { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--foreground); opacity: 0.5; padding: 8px 12px; }
+.voice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 12px; padding: 4px 8px 8px; }
+.voice-card {
+  cursor: pointer; display: flex; flex-direction: column; align-items: center; /* اصلاح چیدمان */
+  img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 3px solid transparent; transition: border-color 0.2s, transform 0.2s; &:hover { transform: scale(1.05); } }
+  &.active img { border-color: #0a84ff; transform: scale(1.05); }
+  .voice-name { font-size: 0.75rem; margin-top: 4px; color: var(--foreground); opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+@keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(10, 132, 255, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(10, 132, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(10, 132, 255, 0); } }
+
+/* تایمر (برای نسخه محدود هنوز در SCSS هست اما در نسخه نامحدود استفاده نمی‌شود) */
+.timer-section {
+  padding: 12px;
+  &.time-up { text-align: center; p { font-size: 0.85rem; font-weight: 500; margin: 0; padding: 8px; color: var(--foreground); opacity: 0.8; } }
+  .timer-text { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--foreground); opacity: 0.8; margin-bottom: 8px; span:last-child { font-weight: 600; font-variant-numeric: tabular-nums; } }
+  .timer-bar { width: 100%; height: 8px; background-color: rgba(0, 0, 0, 0.1); .dark & { background-color: rgba(255, 255, 255, 0.1); } border-radius: 4px; overflow: hidden; }
+  .timer-bar-fill { height: 100%; border-radius: 4px; background-color: #34c759; transition: width 0.5s ease-out; &.active { background: repeating-linear-gradient(-45deg, #34c759, #34c759 10px, #4ade80 10px, #4ade80 20px); animation: slide 60s linear infinite; } }
+}
+@keyframes slide { from { background-position: 0 0; } to { background-position: -800px 0; } }
+
+/* صفحه اتمام زمان */
+.time-up-overlay { flex-grow: 1; display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 10; animation: fade-in-scale 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.time-up-card { background-color: var(--popover); color: var(--foreground); border: 1px solid var(--border); border-radius: 24px; padding: 2.5rem; max-width: 400px; text-align: center; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); direction: rtl; .medal-icon { font-size: 56px; padding: 16px; background-color: #fff5e1; color: #ffb822; border-radius: 50%; margin-bottom: 1.5rem; display: inline-block; .dark & { background-color: #4a3c20; color: #ffd670; } } h2 { font-size: 1.5rem; font-weight: 700; margin-top: 0; margin-bottom: 0.75rem; } p { font-size: 1rem; line-height: 1.6; opacity: 0.8; margin: 0; } }
+@keyframes fade-in-scale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+/* ناحیه ویدیو و لوگوی بزرگ (تغییر یافته برای دارک مود) */
+.media-area { flex-grow: 1; position: relative; z-index: 1; video#video-feed { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; } }
+
+#large-logo-container {
+    display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; position: absolute; top: 0; left: 0; pointer-events: none;
+    transition: all 0.5s ease;
+
+    // استایل اختصاصی برای لوگوی وسط در حالت شب
+    .dark & {
+        filter: brightness(0.85) contrast(1.3) saturate(1.2);
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 60%);
+    }
+}
+
+/* دکمه‌های کنترل پایین */
+.footer-controls-html-like { width: 100%; display: flex; align-items: center; position: absolute; bottom: 2rem; padding: 0.5rem 2.5rem; box-sizing: border-box; z-index: 20; justify-content: space-between; }
+.control-button {
+    height: 80px; width: 80px; border-radius: 9999px; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-width: 1px; border-color: #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    cursor: pointer; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, background-color 0.3s, border-color 0.3s;
+    flex-shrink: 0; z-index: 2; overflow: hidden;
+    &:hover { transform: scale(1.05); }
+    &.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+    
+    // استایل عمومی دکمه در دارک مود
+    .dark & {
+        border-color: #27272a;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+    }
+}
+
+// دکمه میکروفون: حالت شب -> شرابی تیره
+.mic-button-color { 
+    background-color: #fecdd3; border-color: #fda4af;
+    .dark & {
+        background-color: #4c0519; 
+        border-color: #881337;
+        color: #fb7185; 
+    }
+}
+
+// دکمه دوربین: حالت شب -> سرمه‌ای تیره
+.cam-button-color { 
+    background-color: #E0ECFF; border-color: #bfdbfe;
+    .dark & {
+        background-color: #172554;
+        border-color: #1e3a8a;
+        color: #60a5fa;
+    }
+}
+
+.control-button-wrapper { position: relative; display: flex; justify-content: center; }
+.switch-camera-button-container {
+    position: absolute; bottom: calc(100% + 0.65rem);
+    left: 50%; transform: translateX(-50%) translateY(15px) scale(0.7);
+    z-index: 5; opacity: 0; pointer-events: none; transition: opacity 0.35s, transform 0.35s;
+    transform-origin: center bottom;
+    &.visible { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); pointer-events: auto; }
+}
+
+// دکمه وسط (چرخش دوربین): حالت شب -> خاکستری تیره
+.switch-camera-button-content {
+    width: 48px; height: 48px; background-color: var(--background);
+    border: 1px solid var(--border); border-radius: 9999px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.12); cursor: pointer;
+    transition: transform 0.2s ease-out, background-color 0.3s;
+    &:hover { transform: scale(1.12); }
+    &:active { transform: scale(1.03); }
+    svg { width: 22px; height: 22px; stroke: var(--foreground); }
+    
+    .dark & {
+        background-color: #18181b;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+    }
+}
+
+/* مودال */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(5px); }
+.modal-content {
+  background: var(--popover); color: var(--foreground); padding: 24px; border-radius: 16px; width: 90%; max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); border: 1px solid var(--border); animation: modal-fade-in 0.3s ease-out; direction: rtl;
+  .dark & { border-color: rgba(255, 255, 255, 0.15); }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 16px; h3 { margin: 0; font-size: 20px; color: inherit; } .close-button { background: none; border: none; color: #aaa; font-size: 28px; cursor: pointer; line-height: 1; padding: 0; &:hover { color: var(--foreground); } } }
+  .modal-body .form-group { margin-bottom: 20px; label { display: block; margin-bottom: 8px; font-weight: 500; color: inherit; } input, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; background-color: #f8f8f8; color: #111; font-size: 15px; text-align: right; .dark & { border-color: #555; background-color: #3a3a3c; color: #fff; } &:focus { outline: none; border-color: #0a84ff; box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.5); } } textarea { resize: vertical; min-height: 100px; } small { display: block; margin-top: 8px; color: #777; font-size: 12px; .dark & { color: #999; } } }
+  .modal-footer { display: flex; justify-content: flex-end; margin-top: 24px; .save-button { background-color: #0a84ff; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; &:hover { background-color: #3499ff; } } }
+}
+@keyframes modal-fade-in { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
